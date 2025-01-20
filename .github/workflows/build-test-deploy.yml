@@ -1,0 +1,28 @@
+on:
+  push:
+    branches:
+      - main
+jobs:
+  test-build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use node js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.16.0"
+      - name: Install dependencies
+        run: yarn
+      - name: Test and build
+        run: |
+          yarn react-test
+          yarn react-build
+      - name: Deploy build
+        uses: nogsantos/scp-deploy@master
+        with:
+          src: build/
+          host: ${{ secrets.SSH_HOST }}
+          remote: ${{ secrets.SSH_DIR }}
+          port: ${{ secrets.SSH_PORT }}
+          user: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
